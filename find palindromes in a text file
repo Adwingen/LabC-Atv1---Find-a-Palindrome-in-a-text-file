@@ -1,0 +1,94 @@
+/**
+*
+* LEI - UAB
+*
+* @classroom Laboratório de Programação (turma 3)
+* @brief find palindromes in a text file
+* @author Carlos Romão
+*
+* @date 13/03/2023
+*
+*/
+
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdbool.h>
+
+#define MAXPALIDROME 1024
+
+/*
+ * find palindromes
+ * see: https://pt.wikipedia.org/wiki/Pal%C3%ADndromo#Palavras_pal%C3%ADndromas
+ *
+ * @param pointer to char
+ * @param a integer to size
+ * @return 1 if is a palidrome or 0 if is not
+ *
+ */
+
+bool isArrayOfCharAPalindromeRecursive(char* arr, int size);
+
+int main()
+{
+
+	char* palidrome = (char*)malloc(sizeof(char));
+	int lenght;
+	int result;
+	FILE* file = fopen("palindrome.txt", "r");
+	if (file == NULL)
+		printf("File not open.\n");
+
+	while (fgets(palidrome, MAXPALIDROME, file))
+	{
+		//remove the enter from the input
+		palidrome[strcspn(palidrome, "\n")] = 0;
+		lenght = strlen(palidrome);
+		//consider only palindromes of length between 3 and 10 characters.
+		if (lenght >= 3 && lenght <=10)
+		{
+			//find palidromes
+			result = isArrayOfCharAPalindromeRecursive(palidrome, lenght);
+			if (result)
+				printf("%s is a palidrome\n", palidrome);
+			else
+				printf("%s is not a palidrome\n", palidrome);
+			
+		}
+		else
+			printf("%s is invalid input\n", palidrome);
+		
+	}
+
+	fclose(file);
+	free(palidrome);
+	
+	return 0;
+}
+
+
+/*
+ * find palindromes
+ * see: https://pt.wikipedia.org/wiki/Pal%C3%ADndromo#Palavras_pal%C3%ADndromas
+ *
+ * @param pointer to char
+ * @param a integer to size
+ * @return 1 if is a palidrome or 0 if is not
+ *
+ */
+
+bool isArrayOfCharAPalindromeRecursive(char* arr, int size)
+{
+	//base case
+	if (size <= 1)
+		return true;
+
+	//compare starting/ending letters recursively
+	if (arr[0] == arr[size - 1])
+		isArrayOfCharAPalindromeRecursive(arr + 1, size - 2);
+	else
+		return false;
+}
