@@ -1,0 +1,137 @@
+//
+//  AF1 - Laboratório de Programação
+//  Palindromos v2
+//
+//  Paulo Alves
+//  13/03/23
+//
+
+#define _CRT_SECURE_NO_WARNINGS
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+#include <stdbool.h>
+#include <locale.h>
+
+#define MAX_SIZE 50
+#define LINE_SIZE 1024
+#define DELIMITERS " \t\n,.:;?!\"-_'()[]{}\\/<>#$%^&*@+=`~\r\f\v"
+
+void GuidelinesPrint();
+void GetPalindromes(FILE* file, int strType, FILE* saveFile);
+bool isPalindrome(char* string);
+void toUpper(char* string);
+
+int main(void) {
+
+    setlocale(LC_ALL, "");
+    GuidelinesPrint();
+
+    FILE* saveFile = NULL;
+    FILE* file;
+    printf("Insert file name:");
+    char fileName[MAX_SIZE];
+    scanf("%s", fileName);
+    puts("");
+
+    file = fopen(fileName, "rt");
+    if (file == NULL) {
+        perror("Invalid operation");
+        exit(EXIT_FAILURE);
+    }
+    else {
+        printf("Save findings in a file? [Y] or [N]");
+        printf("\n  >");
+        fflush(stdin);
+        char extFile;
+        scanf("%c", &extFile);
+        if (extFile == 'Y' || extFile == 'y') {
+            saveFile = fopen("Palindromos_results.txt", "wt");
+            if (saveFile == NULL) {
+                perror("Invalid Operation");
+                exit(EXIT_FAILURE);
+            }
+        }
+        puts("Scope to search: [1] Words or [2] Phrases");
+        printf("  >");
+        fflush(stdin);
+        int strType;
+        scanf("%d", &strType);
+        puts("");
+        GetPalindromes(file, strType, saveFile);
+        fclose(file);
+    }
+
+    if (saveFile != NULL)
+        fclose(saveFile);
+    system("PAUSE");
+    exit(EXIT_SUCCESS);
+}
+
+void GuidelinesPrint() {
+
+    puts("\n######## PALINDROMES FINDER ########\n");
+    puts("  Guidelines:");
+    puts("  > Reads from an existent text file");
+    puts("  > Checks for palindromes on word or phrase scope");
+    puts("  > Accentuated letters are disregarded\n");
+    puts("  > Prints the result or saves the data\n");
+}
+
+void GetPalindromes(FILE* file, int strType, FILE* saveFile) {
+
+    int count = 0;
+    char line[LINE_SIZE];
+    char cleanedLine[LINE_SIZE];
+
+    while (fgets(line, LINE_SIZE, file) != NULL) {
+        toUpper(line);
+        if (strType == 1) {
+            char* word = strtok(line, DELIMITERS);
+            while (word) {
+                if (isPalindrome(word)) {
+                    count++;
+                    saveFile != NULL ? fprintf(saveFile, " - %s\n", word) : printf(" - %s\n", word);
+                }
+                word = strtok(NULL, DELIMITERS);
+            }
+        }
+        if (strType == 2) {
+            int i, j;
+            for (i = 0, j = 0; i < strlen(line); i++)
+                if (isalnum(line[i]))
+                    cleanedLine[j++] = line[i];
+            cleanedLine[j] = '\0';
+            if (isPalindrome(cleanedLine)) {
+                count++;
+                saveFile != NULL ? fprintf(saveFile, " - %s\n", line) : printf(" - %s\n", line);
+            }
+        }
+    }
+    printf("\nFound %d palindromes.\n", count);
+}
+
+bool isPalindrome(char* string) {
+
+    int i;
+    int j = strlen(string) - 1;
+
+    if (strlen(string) >= 3) {
+        for (i = 0; i < strlen(string); i++, j--)
+            if (string[i] != string[j]) {
+                return false;
+            }
+        return true;
+    }
+    return false;
+}
+
+void toUpper(char* string) {
+
+    int i;
+
+    for (i = 0; i < strlen(string); i++)
+        string[i] = toupper(string[i]);
+}
